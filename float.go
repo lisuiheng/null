@@ -1,7 +1,6 @@
 package null
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"math"
@@ -13,16 +12,15 @@ import (
 // It does not consider zero values to be null.
 // It will decode to null, not zero, if null.
 type Float struct {
-	sql.NullFloat64
+	Float64 float64
+	Valid   bool // Valid is true if Float64 is not NULL
 }
 
 // NewFloat creates a new Float
 func NewFloat(f float64, valid bool) Float {
 	return Float{
-		NullFloat64: sql.NullFloat64{
-			Float64: f,
-			Valid:   valid,
-		},
+		Float64: f,
+		Valid:   valid,
 	}
 }
 
@@ -68,7 +66,7 @@ func (f *Float) UnmarshalJSON(data []byte) error {
 		}
 		f.Float64, err = strconv.ParseFloat(str, 64)
 	case map[string]interface{}:
-		err = json.Unmarshal(data, &f.NullFloat64)
+		err = json.Unmarshal(data, &f.Float64)
 	case nil:
 		f.Valid = false
 		return nil

@@ -1,7 +1,6 @@
 package null
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -12,16 +11,15 @@ import (
 // It does not consider zero values to be null.
 // It will decode to null, not zero, if null.
 type Int struct {
-	sql.NullInt64
+	Int64 int64
+	Valid bool // Valid is true if Int64 is not NULL
 }
 
 // NewInt creates a new Int
 func NewInt(i int64, valid bool) Int {
 	return Int{
-		NullInt64: sql.NullInt64{
-			Int64: i,
-			Valid: valid,
-		},
+		Int64: i,
+		Valid: valid,
 	}
 }
 
@@ -68,7 +66,7 @@ func (i *Int) UnmarshalJSON(data []byte) error {
 		}
 		i.Int64, err = strconv.ParseInt(str, 10, 64)
 	case map[string]interface{}:
-		err = json.Unmarshal(data, &i.NullInt64)
+		err = json.Unmarshal(data, &i.Int64)
 	case nil:
 		i.Valid = false
 		return nil

@@ -5,7 +5,7 @@
 package null
 
 import (
-	"database/sql"
+	"database/sql/driver"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -14,7 +14,8 @@ import (
 // String is a nullable string. It supports SQL and JSON serialization.
 // It will marshal to null if null. Blank string input will be considered null.
 type String struct {
-	sql.NullString
+	String string
+	Valid  bool // Valid is true if String is not NULL
 }
 
 // StringFrom creates a new String that will never be blank.
@@ -41,11 +42,21 @@ func (s String) ValueOrZero() string {
 // NewString creates a new String
 func NewString(s string, valid bool) String {
 	return String{
-		NullString: sql.NullString{
-			String: s,
-			Valid:  valid,
-		},
+		String: s,
+		Valid:  valid,
 	}
+}
+
+// Scan implements the Scanner interface.
+func (ns *String) Scan(value interface{}) error {
+	ns.Valid = true
+	ns.String = string(value.([]byte))
+	return nil
+}
+
+// Value implements the driver Valuer interface.
+func (ns *String) Value() (driver.Value, error) {
+	return ns.String, nil
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -61,7 +72,7 @@ func (s *String) UnmarshalJSON(data []byte) error {
 	case string:
 		s.String = x
 	case map[string]interface{}:
-		err = json.Unmarshal(data, &s.NullString)
+		err = json.Unmarshal(data, &s.String)
 	case nil:
 		s.Valid = false
 		return nil

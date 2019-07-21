@@ -2,6 +2,7 @@ package null
 
 import (
 	"database/sql"
+	"database/sql/driver"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,17 +13,36 @@ import (
 // It does not consider false values to be null.
 // It will decode to null, not false, if null.
 type Bool struct {
+	Bool bool
 	sql.NullBool
+	Valid bool // Valid is true if Bool is not NULL
 }
 
 // NewBool creates a new Bool
 func NewBool(b bool, valid bool) Bool {
 	return Bool{
-		NullBool: sql.NullBool{
-			Bool:  b,
-			Valid: valid,
-		},
+		Bool:  b,
+		Valid: valid,
 	}
+}
+
+// Scan implements the Scanner interface.
+func (b *Bool) Scan(value interface{}) error {
+	if value == nil {
+		b.Bool, b.Valid = false, false
+		return nil
+	}
+	b.Valid = true
+	b.Bool = value.([]byte)[0] == 48
+	return nil
+}
+
+// Value implements the driver Valuer interface.
+func (b *Bool) Value() (driver.Value, error) {
+	if !b.Valid {
+		return nil, nil
+	}
+	return b.Bool, nil
 }
 
 // BoolFrom creates a new Bool that will always be valid.
@@ -57,7 +77,7 @@ func (b *Bool) UnmarshalJSON(data []byte) error {
 	case bool:
 		b.Bool = x
 	case map[string]interface{}:
-		err = json.Unmarshal(data, &b.NullBool)
+		err = json.Unmarshal(data, &b.Bool)
 	case nil:
 		b.Valid = false
 		return nil
