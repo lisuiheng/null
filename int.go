@@ -27,7 +27,7 @@ func NewInt(i int64, valid bool) Int {
 // Scan implements the Scanner interface.
 func (i *Int) Scan(value interface{}) (err error) {
 	i.Valid = true
-	i.Int64, err = strconv.ParseInt(string(value.([]byte)), 10, 8)
+	i.Int64, err = strconv.ParseInt(string(value.([]byte)), 10, 16)
 	return nil
 }
 
