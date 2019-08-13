@@ -1,6 +1,7 @@
 package null
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -21,6 +22,21 @@ func NewInt(i int64, valid bool) Int {
 		Int64: i,
 		Valid: valid,
 	}
+}
+
+// Scan implements the Scanner interface.
+func (i *Int) Scan(value interface{}) (err error) {
+	i.Valid = true
+	i.Int64, err = strconv.ParseInt(string(value.([]byte)), 10, 8)
+	return nil
+}
+
+// Value implements the driver Valuer interface.
+func (i *Int) Value() (driver.Value, error) {
+	if !i.Valid {
+		return nil, nil
+	}
+	return i.Int64, nil
 }
 
 // IntFrom creates a new Int that will always be valid.
