@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package null;
+
+message Int {
+    int64 Int64 = 1;
+    bool Valid = 2;
+}
+
