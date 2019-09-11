@@ -6,4 +6,8 @@ message Int {
     int64 Int64 = 1;
     bool Valid = 2;
 }
+message Bool {
+    bool Bool = 1;
+    bool Valid = 2;
+}
 

@@ -33,7 +33,7 @@ func (b *Bool) Scan(value interface{}) error {
 		return nil
 	}
 	b.Valid = true
-	b.Bool = value.([]byte)[0] == 48
+	b.Bool = value.([]byte)[0] == 49
 	return nil
 }
 

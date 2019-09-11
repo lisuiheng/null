@@ -27,7 +27,7 @@ func NewInt(i int64, valid bool) Int {
 // Scan implements the Scanner interface.
 func (i *Int) Scan(value interface{}) (err error) {
 	i.Valid = true
-	i.Int64, err = strconv.ParseInt(string(value.([]byte)), 10, 16)
+	i.Int64, err = strconv.ParseInt(string(value.([]byte)), 10, 64)
 	return nil
 }
 
@@ -114,7 +114,8 @@ func (i Int) MarshalJSON() ([]byte, error) {
 	if !i.Valid {
 		return []byte("null"), nil
 	}
-	return []byte(strconv.FormatInt(i.Int64, 10)), nil
+	bytes := []byte(strconv.FormatInt(i.Int64, 10))
+	return bytes, nil
 }
 
 // MarshalText implements encoding.TextMarshaler.
